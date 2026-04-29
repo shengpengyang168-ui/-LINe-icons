@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINe icons - AI 智能选题平台</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #000000;
+    --primary-dark: #1a1a1a;
+    --secondary: #333333;
+    --accent: #666666;
+    --success: #222222;
+    --danger: #444444;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-card: #ffffff;
+    --text-primary: #111111;
+    --text-secondary: #666666;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 20px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --sidebar-width: 240px;
+    --right-panel-width: 320px;
+    --collapsed-width: 56px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  .onboarding {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-primary); z-index: 3000;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .onboarding.hidden { display: none; }
+  .onboarding-logo { font-size: 48px; font-weight: 900; margin-bottom: 8px; }
+  .onboarding-subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 40px; }
+  .onboarding-title { font-size: 32px; font-weight: 900; margin-bottom: 8px; }
+  .onboarding-desc { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
+  .category-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    max-width: 720px; width: 90%; margin-bottom: 36px;
+  }
+  .category-card {
+    padding: 20px 14px; background: var(--bg-secondary); border: 2px solid var(--border-color);
+    border-radius: 14px; cursor: pointer; transition: all 0.2s; text-align: center;
+    user-select: none;
+  }
+  .category-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: var(--shadow); }
+  .category-card.selected { border-color: var(--primary); background: var(--primary); color: white; }
+  .category-card.selected .category-icon { filter: brightness(2); }
+  .category-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+  .category-name { font-size: 13px; font-weight: 700; }
+  .onboarding-btn {
+    padding: 16px 48px; background: var(--primary); color: white; border: none;
+    border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; font-family: inherit;
+  }
+  .onboarding-btn:hover { background: var(--secondary); transform: translateY(-2px); }
+  .onboarding-btn:disabled { background: var(--border-color); cursor: not-allowed; transform: none; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; }
+
+  .header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 28px; background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color); z-index: 100;
+    position: sticky; top: 0;
+  }
+
+  .logo-section { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 40px; height: 40px; background: var(--primary); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: white; font-weight: 800;
+  }
+  .logo-text h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-text p { font-size: 12px; color: var(--text-secondary); }
+
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 10px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 13px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--secondary); transform: translateY(-1px); }
+  .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+  .btn-secondary:hover { background: var(--border-color); }
+  .btn-black { background: var(--primary); color: white; }
+  .btn-black:hover { background: var(--secondary); }
+
+  .user-avatar {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; font-weight: 700; font-size: 15px; color: white;
+  }
+  .user-avatar:hover { transform: scale(1.08); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+
+  .main-layout {
+    display: flex; flex: 1; overflow: hidden;
+  }
+
+  .sidebar {
+    width: var(--sidebar-width); background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    transition: width 0.3s ease; overflow: hidden; position: relative;
+    flex-shrink: 0;
+  }
+  .sidebar.collapsed { width: var(--collapsed-width); }
+  .sidebar.collapsed .nav-text { display: none; }
+  .sidebar.collapsed .sidebar-section-title { display: none; }
+  .sidebar.collapsed .nav-item { justify-content: center; padding: 14px 0; }
+  .sidebar.collapsed .nav-icon { font-size: 20px; }
+
+  .sidebar-toggle {
+    display: flex; align-items: center; justify-content: center;
+    padding: 14px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+    font-size: 18px; color: var(--text-secondary); transition: all 0.2s;
+    background: none; border: none; border-bottom: 1px solid var(--border-color);
+    width: 100%;
+  }
+  .sidebar-toggle:hover { background: var(--bg-secondary); color: var(--primary); }
+
+  .sidebar-section-title {
+    padding: 12px 20px 6px; font-size: 11px; font-weight: 700;
+    color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .nav-menu { list-style: none; padding: 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-radius: 10px; cursor: pointer;
+    transition: all 0.2s; font-weight: 500; color: var(--text-secondary);
+    margin-bottom: 2px; white-space: nowrap;
+  }
+  .nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .nav-item.active { background: var(--primary); color: white; }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+
+  .content-area {
+    flex: 1; overflow-y: auto; padding: 28px;
+    transition: all 0.3s ease;
+  }
+
+  .right-panel {
+    width: var(--right-panel-width); background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    display: flex; flex-direction: column;
+    transition: width 0.3s ease; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .right-panel.collapsed { width: var(--collapsed-width); }
+  .right-panel.collapsed .panel-content { display: none; }
+
+  .panel-toggle {
+    display: flex; align-items: center; justify-content: center;
+    padding: 14px; cursor: pointer; border-bottom: 1px solid var(--border-color);
+    font-size: 18px; color: var(--text-secondary); transition: all 0.2s;
+    background: none; border: none; border-bottom: 1px solid var(--border-color);
+    width: 100%;
+  }
+  .panel-toggle:hover { background: var(--bg-secondary); color: var(--primary); }
+
+  .panel-content { padding: 20px; overflow-y: auto; flex: 1; }
+
+  .panel-section { margin-bottom: 24px; }
+  .panel-section-title {
+    font-size: 13px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    user-select: none; padding: 8px 0; transition: color 0.2s;
+  }
+  .panel-section-title:hover { color: var(--text-primary); }
+  .toggle-arrow { font-size: 10px; transition: transform 0.3s ease; }
+  .panel-section-title.collapsed .toggle-arrow { transform: rotate(-90deg); }
+  .panel-section-content {
+    overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 800px; opacity: 1;
+  }
+  .panel-section-content.collapsed {
+    max-height: 0; opacity: 0; margin: 0;
+  }
+
+  .hotspot-tabs {
+    display: flex; gap: 4px; margin-bottom: 12px;
+    background: var(--bg-secondary); padding: 4px; border-radius: 8px;
+  }
+  .hotspot-tab {
+    flex: 1; padding: 6px 8px; background: transparent; border: none;
+    border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    font-family: inherit; font-size: 11px; color: var(--text-secondary); text-align: center;
+  }
+  .hotspot-tab.active { background: var(--primary); color: white; }
+  .hotspot-tab:hover:not(.active) { background: rgba(0,0,0,0.05); }
+
+  .hotspot-item {
+    padding: 8px 0; border-bottom: 1px solid var(--border-color);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .hotspot-item:hover { color: var(--primary); }
+  .hotspot-item:last-child { border-bottom: none; }
+  .hotspot-rank {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; background: var(--primary); border-radius: 4px;
+    font-size: 10px; font-weight: 800; color: white; margin-right: 8px; flex-shrink: 0;
+  }
+  .hotspot-rank.top { background: var(--primary); }
+  .hotspot-text { font-size: 12px; font-weight: 500; line-height: 1.5; }
+  .hotspot-heat { font-size: 10px; color: var(--text-secondary); margin-left: 4px; }
+  .hotspot-update {
+    font-size: 10px; color: var(--text-secondary); text-align: right;
+    margin-bottom: 8px; display: flex; align-items: center; justify-content: flex-end; gap: 4px;
+  }
+  .hotspot-update .pulse {
+    width: 6px; height: 6px; background: #e74c3c; border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border-color);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { font-size: 13px; color: var(--text-secondary); }
+  .stat-value { font-size: 18px; font-weight: 800; color: var(--primary); }
+
+  .card {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 24px; box-shadow: var(--shadow);
+    border: 1px solid var(--border-color); margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 22px; font-weight: 800; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .section-content { display: none; animation: fadeIn 0.3s ease; }
+  .section-content.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .input-group { margin-bottom: 18px; }
+  .input-group label {
+    display: block; font-size: 13px; font-weight: 600;
+    margin-bottom: 6px; color: var(--text-secondary);
+  }
+  .input-group input, .input-group textarea, .input-group select {
+    width: 100%; padding: 12px 16px; background: var(--bg-secondary);
+    border: 2px solid var(--border-color); border-radius: 10px;
+    font-size: 14px; font-family: inherit; transition: all 0.2s;
+    color: var(--text-primary);
+  }
+  .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+  }
+  .input-group textarea { resize: vertical; min-height: 100px; }
+  .input-group select option { background: white; color: var(--text-primary); }
+
+  .search-bar {
+    display: flex; gap: 10px; margin-bottom: 20px;
+  }
+  .search-bar input {
+    flex: 1; padding: 12px 16px; background: var(--bg-secondary);
+    border: 2px solid var(--border-color); border-radius: 10px;
+    font-size: 14px; font-family: inherit; transition: all 0.2s;
+    color: var(--text-primary);
+  }
+  .search-bar input:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
+  }
+  .search-bar button {
+    padding: 12px 24px; background: var(--primary); color: white;
+    border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; font-family: inherit; font-size: 14px;
+    white-space: nowrap;
+  }
+  .search-bar button:hover { background: var(--secondary); }
+
+  .result-item {
+    padding: 14px; background: var(--bg-secondary); border-radius: 10px;
+    margin-bottom: 10px; border-left: 3px solid var(--primary);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .result-item:hover { transform: translateX(4px); box-shadow: var(--shadow); }
+  .result-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .result-desc { font-size: 12px; color: var(--text-secondary); }
+
+  .result-container {
+    margin-top: 20px; padding: 20px; background: var(--bg-secondary);
+    border-radius: var(--radius); border: 2px dashed var(--border-color);
+    min-height: 120px;
+  }
+
+  .article-item {
+    display: flex; gap: 14px; padding: 16px; background: var(--bg-card);
+    border-radius: var(--radius); cursor: pointer; transition: all 0.2s;
+    border: 1px solid var(--border-color); margin-bottom: 10px;
+  }
+  .article-item:hover { border-color: var(--primary); transform: translateX(4px); box-shadow: var(--shadow); }
+  .article-rank {
+    width: 32px; height: 32px; background: var(--primary); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: white; flex-shrink: 0;
+  }
+  .article-title { font-size: 14px; font-weight: 600; line-height: 1.5; margin-bottom: 4px; }
+  .article-meta { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); }
+
+  .tabs {
+    display: flex; gap: 6px; margin-bottom: 20px;
+    background: var(--bg-secondary); padding: 6px; border-radius: 10px;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px 16px; background: transparent; border: none;
+    border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    font-family: inherit; font-size: 13px; color: var(--text-secondary);
+  }
+  .tab-btn.active { background: var(--primary); color: white; }
+  .tab-btn:hover:not(.active) { background: rgba(0,0,0,0.05); }
+
+  .search-platforms {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;
+  }
+  .platform-btn {
+    padding: 14px 10px; background: var(--bg-card); border: 2px solid var(--border-color);
+    border-radius: 12px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+    text-align: center; font-size: 13px; font-weight: 600; color: var(--text-secondary);
+  }
+  .platform-btn:hover, .platform-btn.active {
+    border-color: var(--primary); color: var(--primary); background: var(--bg-secondary);
+  }
+  .platform-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+
+  .inspiration-card {
+    background: var(--bg-card); border-radius: var(--radius);
+    padding: 24px; border: 1px solid var(--border-color); margin-bottom: 14px;
+  }
+  .inspiration-type {
+    display: inline-block; padding: 4px 14px; background: var(--primary);
+    border-radius: 20px; font-size: 11px; font-weight: 700; color: white; margin-bottom: 12px;
+  }
+  .inspiration-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .framework-item {
+    display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-color);
+  }
+  .framework-item:last-child { border-bottom: none; }
+  .framework-number {
+    width: 28px; height: 28px; background: var(--primary); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: white; flex-shrink: 0;
+  }
+  .framework-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg-card); border-radius: 16px; padding: 32px;
+    max-width: 600px; width: 95%; max-height: 85vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+    background: var(--bg-secondary); border: none; border-radius: 8px;
+    cursor: pointer; font-size: 20px; display: flex; align-items: center;
+    justify-content: center; transition: all 0.2s; color: var(--text-secondary);
+  }
+  .modal-close:hover { background: var(--primary); color: white; }
+  .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; }
+
+  .login-tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    background: var(--bg-secondary); padding: 4px; border-radius: 10px;
+  }
+  .login-tab-btn {
+    flex: 1; padding: 10px; background: transparent; border: none;
+    border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    font-family: inherit; font-size: 13px; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .login-tab-btn.active { background: var(--primary); color: white; }
+  .login-form { display: none; }
+  .login-form.active { display: block; animation: fadeIn 0.3s ease; }
+  .qr-code-container { text-align: center; padding: 30px 20px; }
+  .qr-code {
+    width: 160px; height: 160px; background: var(--bg-secondary);
+    margin: 0 auto 16px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; font-size: 64px;
+  }
+
+  .membership-hero {
+    background: linear-gradient(135deg, rgba(0,0,0,0.03), rgba(0,0,0,0.08));
+    border-radius: 16px; padding: 36px; margin-bottom: 24px;
+    text-align: center; border: 2px solid var(--primary); position: relative; overflow: hidden;
+  }
+  .membership-hero::before {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent, rgba(0,0,0,0.03), transparent 30%);
+    animation: rotate 12s linear infinite;
+  }
+  @keyframes rotate { 100% { transform: rotate(360deg); } }
+  .membership-crown { font-size: 48px; margin-bottom: 10px; position: relative; z-index: 1; }
+  .membership-level { font-size: 30px; font-weight: 900; margin-bottom: 6px; position: relative; z-index: 1; }
+  .membership-benefits-count { font-size: 14px; color: var(--text-secondary); position: relative; z-index: 1; }
+
+  .plans-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .plan-card {
+    background: var(--bg-card); border-radius: 16px; padding: 28px;
+    border: 2px solid var(--border-color); transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .plan-card.featured { border-color: var(--primary); transform: scale(1.02); box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+  .plan-card.featured::before {
+    content: '最受欢迎'; position: absolute; top: 16px; right: -24px;
+    background: var(--primary); color: white; padding: 4px 32px;
+    font-size: 10px; font-weight: 700; transform: rotate(45deg);
+  }
+  .plan-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+  .plan-card.featured:hover { transform: scale(1.04) translateY(-4px); }
+  .plan-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .plan-price { font-size: 36px; font-weight: 900; color: var(--primary); margin-bottom: 16px; }
+  .plan-price span { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+  .plan-features { list-style: none; margin-bottom: 20px; }
+  .plan-features li {
+    padding: 8px 0; border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary); display: flex; align-items: center;
+    gap: 8px; font-size: 13px;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-features li::before { content: '✓'; color: var(--primary); font-weight: 800; }
+
+  .article-page {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-secondary); z-index: 500; overflow: hidden;
+  }
+  .article-page.show { display: flex; flex-direction: column; }
+  .article-page-header {
+    display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+    background: var(--bg-card); border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 8px; padding: 8px 16px;
+    background: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px;
+    font-weight: 600; color: var(--text-secondary); transition: all 0.2s;
+  }
+  .back-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+  .article-page-body {
+    display: flex; flex: 1; overflow: hidden;
+  }
+  .article-left {
+    flex: 1; overflow-y: auto; padding: 28px;
+  }
+  .article-right {
+    width: 420px; background: var(--bg-card); border-left: 1px solid var(--border-color);
+    overflow-y: auto; padding: 24px; flex-shrink: 0;
+  }
+  .article-detail-title { font-size: 28px; font-weight: 900; line-height: 1.3; margin-bottom: 14px; }
+  .article-detail-meta { display: flex; gap: 20px; color: var(--text-secondary); font-size: 13px; margin-bottom: 24px; flex-wrap: wrap; }
+  .article-content-body { font-size: 15px; line-height: 1.9; }
+  .article-content-body h2 { font-size: 22px; font-weight: 800; margin: 28px 0 14px; }
+  .article-content-body h3 { font-size: 18px; font-weight: 700; margin: 20px 0 10px; }
+  .article-content-body p { margin-bottom: 14px; }
+  .article-actions { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
+  .action-btn {
+    padding: 10px 18px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    font-family: inherit; display: flex; align-items: center; gap: 8px;
+    color: var(--text-primary); font-size: 13px;
+  }
+  .action-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .analysis-section {
+    background: var(--bg-secondary); border-radius: 12px; padding: 18px;
+    margin-bottom: 16px; border: 1px solid var(--border-color);
+  }
+  .analysis-section-title { font-size: 16px; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .score-circle {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: conic-gradient(var(--primary) calc(var(--score) * 3.6deg), var(--border-color) 0deg);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; position: relative;
+  }
+  .score-circle::before {
+    content: ''; position: absolute; width: 86px; height: 86px;
+    background: var(--bg-secondary); border-radius: 50%;
+  }
+  .score-value {
+    position: relative; font-size: 30px; font-weight: 900; color: var(--primary);
+  }
+  .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .analysis-metric {
+    background: var(--bg-card); padding: 14px; border-radius: 10px;
+    text-align: center; border: 1px solid var(--border-color);
+  }
+  .metric-value { font-size: 26px; font-weight: 900; color: var(--primary); }
+  .metric-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+
+  .sentiment-bar {
+    height: 22px; border-radius: 11px; overflow: hidden;
+    display: flex; margin-top: 8px;
+  }
+  .sentiment-positive { background: var(--primary); }
+  .sentiment-neutral { background: var(--accent); }
+  .sentiment-negative { background: var(--border-color); }
+
+  .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+  .heatmap-cell { aspect-ratio: 1; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+  .heatmap-cell:hover { transform: scale(1.2); }
+  .heatmap-cell.level-1 { background: rgba(0,0,0,0.08); }
+  .heatmap-cell.level-2 { background: rgba(0,0,0,0.18); }
+  .heatmap-cell.level-3 { background: rgba(0,0,0,0.35); }
+  .heatmap-cell.level-4 { background: rgba(0,0,0,0.55); }
+  .heatmap-cell.level-5 { background: var(--primary); }
+
+  .comment-item {
+    background: var(--bg-card); padding: 14px; border-radius: 10px;
+    border: 1px solid var(--border-color); margin-bottom: 10px;
+  }
+  .comment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .comment-avatar {
+    width: 34px; height: 34px; background: var(--primary); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .comment-author { font-weight: 600; font-size: 13px; }
+  .comment-time { font-size: 11px; color: var(--text-secondary); }
+  .comment-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  .share-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .share-btn {
+    padding: 8px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; font-family: inherit; color: var(--text-primary);
+  }
+  .share-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .loading-spinner {
+    display: inline-block; width: 24px; height: 24px;
+    border: 3px solid var(--border-color); border-radius: 50%;
+    border-top-color: var(--primary); animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed; bottom: 28px; right: 28px; background: var(--primary);
+    color: white; padding: 14px 24px; border-radius: 10px; font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2); z-index: 2000;
+    display: none; animation: slideUp 0.3s ease;
+  }
+  .toast.show { display: block; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+
+  .settings-option-card {
+    flex: 1; padding: 20px 16px; background: var(--bg-secondary);
+    border: 2px solid var(--border-color); border-radius: 12px;
+    cursor: pointer; transition: all 0.2s; text-align: center; user-select: none;
+  }
+  .settings-option-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .settings-option-card.selected { border-color: var(--primary); background: var(--primary); color: white; }
+  .settings-option-card.selected div { color: white !important; }
+
+  .color-swatch {
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+    border: 3px solid transparent; transition: all 0.2s;
+  }
+  .color-swatch:hover { transform: scale(1.15); }
+  .color-swatch.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
+
+  .settings-toggle-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .toggle-switch {
+    position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--border-color); border-radius: 26px; transition: all 0.3s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute; height: 20px; width: 20px;
+    left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: all 0.3s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
+  @media (max-width: 900px) {
+    .right-panel { display: none; }
+    .article-page-body { flex-direction: column; }
+    .article-right { width: 100%; border-left: none; border-top: 1px solid var(--border-color); }
+    .category-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="onboarding" id="onboarding">
+  <div class="onboarding-logo">Li</div>
+  <div class="onboarding-title">选择您感兴趣的领域</div>
+  <div class="onboarding-desc">我们将根据您的选择为您定制个性化内容推荐</div>
+  <div class="category-grid" id="categoryGrid">
+    <div class="category-card" onclick="toggleCategory(this, 'tech')">
+      <span class="category-icon">💻</span>
+      <span class="category-name">科技</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'ai')">
+      <span class="category-icon">🤖</span>
+      <span class="category-name">AI / 大模型</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'finance')">
+      <span class="category-icon">💰</span>
+      <span class="category-name">财经</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'health')">
+      <span class="category-icon">🏥</span>
+      <span class="category-name">健康</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'education')">
+      <span class="category-icon">📚</span>
+      <span class="category-name">教育</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'lifestyle')">
+      <span class="category-icon">🌱</span>
+      <span class="category-name">生活方式</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'entertainment')">
+      <span class="category-icon">🎬</span>
+      <span class="category-name">娱乐</span>
+    </div>
+    <div class="category-card" onclick="toggleCategory(this, 'business')">
+      <span class="category-icon">📈</span>
+      <span class="category-name">商业</span>
+    </div>
+  </div>
+  <button class="onboarding-btn" id="startBtn" disabled onclick="startApp()">开始体验 →</button>
+</div>
+
+<div class="app" id="app" style="display:none;">
+  <header class="header">
+    <div class="logo-section">
+      <div class="logo-icon">Li</div>
+      <div class="logo-text">
+        <h1>LINe icons</h1>
+        <p>AI 智能选题 · 灵感无限</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="refreshData()">🔄 刷新</button>
+      <button class="btn btn-primary" onclick="showModal('generate')">⚡ 快速生成</button>
+      <div class="user-avatar" onclick="showModal('login')" id="userAvatar" title="点击登录">登</div>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <aside class="sidebar" id="sidebar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+      <ul class="nav-menu">
+        <li class="nav-item active" onclick="switchSection('articles', this)">
+          <span class="nav-icon">📰</span><span class="nav-text">热文推荐</span>
+        </li>
+        <li class="nav-item" onclick="switchSection('generator', this)">
+          <span class="nav-icon">🎯</span><span class="nav-text">选题生成</span>
+        </li>
+        <li class="nav-item" onclick="switchSection('inspiration', this)">
+          <span class="nav-icon">💭</span><span class="nav-text">灵感生成器</span>
+        </li>
+        <li class="nav-item" onclick="switchSection('membership', this)">
+          <span class="nav-icon">�</span><span class="nav-text">会员中心</span>
+        </li>
+        <li class="nav-item" onclick="switchSection('settings', this)">
+          <span class="nav-icon">⚙️</span><span class="nav-text">设置</span>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="content-area" id="mainContent">
+
+      <div id="section-articles" class="section-content active">
+        <h2 class="section-title">📰 热文检索与推荐</h2>
+        <div class="search-platforms">
+          <button class="platform-btn active" onclick="switchPlatform(this,'weibo')"><span class="platform-icon">📱</span>微博</button>
+          <button class="platform-btn" onclick="switchPlatform(this,'zhihu')"><span class="platform-icon">💡</span>知乎</button>
+          <button class="platform-btn" onclick="switchPlatform(this,'wechat')"><span class="platform-icon">💬</span>微信公众号</button>
+          <button class="platform-btn" onclick="switchPlatform(this,'twitter')"><span class="platform-icon">🐦</span>推特</button>
+        </div>
+        <div class="search-bar">
+          <input type="text" id="articleSearchInput" placeholder="🔍 输入关键词搜索文章..." onkeyup="if(event.key==='Enter')searchArticles()">
+          <button onclick="searchArticles()">搜索</button>
+        </div>
+        <div id="articlesList"></div>
+      </div>
+
+      <div id="section-generator" class="section-content">
+        <div class="card">
+          <h2 class="section-title">🎯 AI 选题生成器</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px;">输入您感兴趣的主题或关键词，AI 将为您智能生成高质量选题和标题建议。</p>
+          <div class="input-group">
+            <label>输入主题或关键词</label>
+            <input type="text" id="topicInput" placeholder="例如：人工智能、健康生活、科技趋势...">
+          </div>
+          <div class="input-group">
+            <label>选择内容类型</label>
+            <select id="contentType">
+              <option value="all">全部类型</option>
+              <option value="tutorial">教程干货型</option>
+              <option value="experience">经验分享型</option>
+              <option value="analysis">深度分析型</option>
+              <option value="trend">趋势预测型</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>标题风格偏好</label>
+            <select id="titleStyle">
+              <option value="clickbait">吸引眼球型</option>
+              <option value="professional">专业权威型</option>
+              <option value="emotional">情感共鸣型</option>
+              <option value="question">疑问引导型</option>
+              <option value="number">数字清单型</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>同时生成标题</label>
+            <select id="generateTitle">
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+          <button class="btn btn-black" onclick="generateTopics()" style="width:100%;justify-content:center;padding:14px;">✨ 生成选题建议</button>
+          <div class="result-container" id="topicResults" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div id="section-settings" class="section-content">
+        <h2 class="section-title">⚙️ 设置</h2>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">😊 个性化设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">选择系统的交互风格，让体验更贴合您的偏好</p>
+          <div style="display:flex;gap:10px;">
+            <div class="settings-option-card selected" onclick="selectOption(this,'personality','warm')">
+              <div style="font-size:28px;margin-bottom:6px;">🌤️</div>
+              <div style="font-weight:700;font-size:13px;">温暖亲切</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">友善轻松的对话风格</div>
+            </div>
+            <div class="settings-option-card" onclick="selectOption(this,'personality','formal')">
+              <div style="font-size:28px;margin-bottom:6px;">💼</div>
+              <div style="font-weight:700;font-size:13px;">正式严谨</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">专业正式的语气风格</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🎨 外观设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">选择适合您的界面外观模式</p>
+          <div style="display:flex;gap:10px;">
+            <div class="settings-option-card" onclick="selectOption(this,'appearance','light')">
+              <div style="font-size:28px;margin-bottom:6px;">☀️</div>
+              <div style="font-weight:700;font-size:13px;">亮色模式</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">明亮清晰，适合白天</div>
+            </div>
+            <div class="settings-option-card" onclick="selectOption(this,'appearance','dark')">
+              <div style="font-size:28px;margin-bottom:6px;">🌙</div>
+              <div style="font-weight:700;font-size:13px;">暗色模式</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">减轻疲劳，适合低光</div>
+            </div>
+            <div class="settings-option-card selected" onclick="selectOption(this,'appearance','auto')">
+              <div style="font-size:28px;margin-bottom:6px;">🔄</div>
+              <div style="font-weight:700;font-size:13px;">自动模式</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">跟随系统自动切换</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🎭 主题颜色</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">选择您喜欢的主色调，影响按钮、链接等元素颜色</p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="color-swatch selected" style="background:#000000;" onclick="selectColor(this,'#000000')"></div>
+            <div class="color-swatch" style="background:#1a73e8;" onclick="selectColor(this,'#1a73e8')"></div>
+            <div class="color-swatch" style="background:#7c3aed;" onclick="selectColor(this,'#7c3aed')"></div>
+            <div class="color-swatch" style="background:#059669;" onclick="selectColor(this,'#059669')"></div>
+            <div class="color-swatch" style="background:#dc2626;" onclick="selectColor(this,'#dc2626')"></div>
+            <div class="color-swatch" style="background:#d97706;" onclick="selectColor(this,'#d97706')"></div>
+            <div class="color-swatch" style="background:#0891b2;" onclick="selectColor(this,'#0891b2')"></div>
+            <div class="color-swatch" style="background:#be185d;" onclick="selectColor(this,'#be185d')"></div>
+            <div style="margin-left:8px;padding:6px 14px;background:var(--bg-secondary);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='var(--bg-secondary)';this.style.color='var(--text-primary)'" onclick="showToast('已根据设备主题自动匹配颜色')">🔄 自动匹配</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🌐 语言设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">选择您偏好的语言，界面将根据您的选择自动切换</p>
+          <div class="input-group" style="margin-bottom:10px;">
+            <select id="languageSelect" onchange="showToast('语言已切换为: ' + this.value)">
+              <option value="简体中文">简体中文</option>
+              <option value="繁體中文">繁體中文</option>
+              <option value="English">English</option>
+              <option value="日本語">日本語</option>
+              <option value="한국어">한국어</option>
+            </select>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-secondary)'" onclick="showToast('已自动检测设备语言')">🔍 自动检测语言</div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🔔 通知设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">管理您接收更新、提醒和活动通知的方式</p>
+          <div class="settings-toggle-row">
+            <div>
+              <div style="font-weight:600;font-size:14px;">开启通知</div>
+              <div style="font-size:12px;color:var(--text-secondary);">接收关于更新、提醒和活动的实时通知</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" checked onchange="showToast(this.checked?'通知已开启':'通知已关闭')"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🔒 隐私与安全</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">保护您的数据和账户安全</p>
+          <div class="settings-toggle-row">
+            <div>
+              <div style="font-weight:600;font-size:14px;">隐私保护</div>
+              <div style="font-size:12px;color:var(--text-secondary);">增强数据安全，减少信息泄露风险</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" checked onchange="showToast(this.checked?'隐私保护已开启':'隐私保护已关闭')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="settings-toggle-row" style="border-top:1px solid var(--border-color);padding-top:14px;margin-top:14px;">
+            <div>
+              <div style="font-weight:600;font-size:14px;">两步验证</div>
+              <div style="font-size:12px;color:var(--text-secondary);">增加账户安全性，防止未经授权的登录</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" onchange="showToast(this.checked?'两步验证已开启':'两步验证已关闭')"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">👤 账户设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">管理您的账户信息和安全</p>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-black" onclick="showToast('密码修改页面即将打开')">🔑 更改密码</button>
+            <button class="btn btn-secondary" style="color:#c62828;border-color:#ffcdd2;" onclick="showToast('请联系客服确认删除账户操作')">🗑️ 删除账户</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">📲 推送设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">管理推送通知，及时获取活动更新和优惠信息</p>
+          <div class="settings-toggle-row">
+            <div>
+              <div style="font-weight:600;font-size:14px;">允许推送通知</div>
+              <div style="font-size:12px;color:var(--text-secondary);">及时获取活动更新和优惠信息</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" checked onchange="showToast(this.checked?'推送通知已开启':'推送通知已关闭')"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px;">🖥️ 显示设置</h3>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;">调整界面的显示效果，以适应您的阅读需求</p>
+          <div class="input-group">
+            <label>字体大小</label>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <span style="font-size:12px;color:var(--text-secondary);">小</span>
+              <input type="range" min="12" max="20" value="14" style="flex:1;accent-color:var(--primary);" oninput="document.body.style.fontSize=this.value+'px';showToast('字体大小: '+this.value+'px')">
+              <span style="font-size:12px;color:var(--text-secondary);">大</span>
+            </div>
+          </div>
+          <div class="settings-toggle-row" style="margin-top:14px;">
+            <div>
+              <div style="font-weight:600;font-size:14px;">增强对比度</div>
+              <div style="font-size:12px;color:var(--text-secondary);">使内容更加清晰可见</div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" onchange="showToast(this.checked?'高对比度已开启':'高对比度已关闭')"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-inspiration" class="section-content">
+        <div class="card">
+          <h2 class="section-title">💭 创作灵感生成器</h2>
+          <div class="tabs">
+            <button class="tab-btn active" onclick="switchInspirationType(this,'dry')">干货型</button>
+            <button class="tab-btn" onclick="switchInspirationType(this,'experience')">经验分享型</button>
+            <button class="tab-btn" onclick="switchInspirationType(this,'problem')">问题解决型</button>
+            <button class="tab-btn" onclick="switchInspirationType(this,'story')">故事叙述型</button>
+          </div>
+          <div class="input-group">
+            <label>输入创作主题</label>
+            <input type="text" id="inspirationInput" placeholder="例如：远程工作、个人成长...">
+          </div>
+          <button class="btn btn-black" onclick="generateInspiration()" style="width:100%;justify-content:center;padding:14px;">🎨 生成创作灵感</button>
+          <div id="inspirationResults" style="margin-top:20px;display:none;"></div>
+        </div>
+      </div>
+
+      <div id="section-membership" class="section-content">
+        <div class="membership-hero card fade-in">
+          <div class="membership-crown">👑</div>
+          <div class="membership-level" id="currentLevel">免费版用户</div>
+          <div class="membership-benefits-count">解锁全部高级功能，提升创作效率 300%</div>
+        </div>
+        <h3 style="font-size:22px;font-weight:800;margin-bottom:18px;text-align:center;">选择您的会员计划</h3>
+        <div class="plans-grid">
+          <div class="plan-card fade-in">
+            <div class="plan-name">🌟 免费版</div>
+            <div class="plan-price">¥0<span>/月</span></div>
+            <ul class="plan-features"><li>每日 5 次选题生成</li><li>基础标题生成</li><li>查看热点话题</li><li>基础数据分析</li><li>社区支持</li></ul>
+            <button class="btn btn-black" style="width:100%;justify-content:center;" onclick="showToast('您当前已是免费版用户')">当前方案</button>
+          </div>
+          <div class="plan-card featured fade-in">
+            <div class="plan-name">⭐ 高级版</div>
+            <div class="plan-price">¥99<span>/月</span></div>
+            <ul class="plan-features"><li>无限次选题生成</li><li>高级标题优化 (SEO+)</li><li>深度爆款分析报告</li><li>自定义选题推荐</li><li>优先客服支持</li><li>导出数据报告</li></ul>
+            <button class="btn btn-black" style="width:100%;justify-content:center;" onclick="selectPlan('premium')">立即升级</button>
+          </div>
+          <div class="plan-card fade-in">
+            <div class="plan-name">🌟 VIP 版</div>
+            <div class="plan-price">¥299<span>/月</span></div>
+            <ul class="plan-features"><li>所有高级版功能</li><li>一对一专属顾问</li><li>API 接口访问权限</li><li>定制化 AI 模型训练</li><li>白标解决方案</li><li>SLA 服务保障</li></ul>
+            <button class="btn btn-black" style="width:100%;justify-content:center;" onclick="selectPlan('vip')">联系销售</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <h3 style="font-size:18px;font-weight:800;margin-bottom:14px;">🎁 会员特权对比</h3>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead><tr style="border-bottom:2px solid var(--border-color);">
+                <th style="padding:12px;text-align:left;color:var(--text-secondary);">功能</th>
+                <th style="padding:12px;text-align:center;color:var(--text-secondary);">免费版</th>
+                <th style="padding:12px;text-align:center;color:var(--primary);font-weight:700;">高级版</th>
+                <th style="padding:12px;text-align:center;color:var(--text-secondary);">VIP版</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:10px;">每日生成次数</td><td style="padding:10px;text-align:center;">5 次</td><td style="padding:10px;text-align:center;color:var(--primary);font-weight:700;">无限</td><td style="padding:10px;text-align:center;">无限</td></tr>
+                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:10px;">爆款分析深度</td><td style="padding:10px;text-align:center;">基础</td><td style="padding:10px;text-align:center;color:var(--primary);font-weight:700;">完整报告</td><td style="padding:10px;text-align:center;">AI 增强</td></tr>
+                <tr style="border-bottom:1px solid var(--border-color);"><td style="padding:10px;">数据导出</td><td style="padding:10px;text-align:center;">❌</td><td style="padding:10px;text-align:center;color:var(--primary);font-weight:700;">✓</td><td style="padding:10px;text-align:center;">✓</td></tr>
+                <tr><td style="padding:10px;">专属顾问</td><td style="padding:10px;text-align:center;">❌</td><td style="padding:10px;text-align:center;">❌</td><td style="padding:10px;text-align:center;color:var(--primary);font-weight:700;">✓ 1对1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <aside class="right-panel" id="rightPanel">
+      <button class="panel-toggle" onclick="toggleRightPanel()">☰</button>
+      <div class="panel-content">
+        <div class="panel-section">
+          <div class="panel-section-title" onclick="togglePanelSection(this)">🔥 实时热点 <span class="toggle-arrow">▼</span></div>
+          <div class="panel-section-content">
+            <div class="hotspot-update"><span class="pulse"></span> <span id="hotspotUpdateTime">刚刚更新</span></div>
+            <div class="hotspot-tabs">
+              <button class="hotspot-tab active" onclick="switchHotspot(this,'weibo')">微博</button>
+              <button class="hotspot-tab" onclick="switchHotspot(this,'zhihu')">知乎</button>
+              <button class="hotspot-tab" onclick="switchHotspot(this,'wechat')">微信</button>
+              <button class="hotspot-tab" onclick="switchHotspot(this,'twitter')">推特</button>
+            </div>
+            <div id="hotspotList"></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title" onclick="togglePanelSection(this)">🔥 热门标签 <span class="toggle-arrow">▼</span></div>
+          <div class="panel-section-content">
+            <div id="tagCloud" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="panel-section-title" onclick="togglePanelSection(this)">📈 今日数据 <span class="toggle-arrow">▼</span></div>
+          <div class="panel-section-content">
+            <div class="stat-row"><span class="stat-label">新增热点</span><span class="stat-value" id="statHotspots">+24</span></div>
+            <div class="stat-row"><span class="stat-label">已生成选题</span><span class="stat-value" id="statTopics">+12</span></div>
+            <div class="stat-row"><span class="stat-label">收藏数量</span><span class="stat-value" id="statFav">+5</span></div>
+            <div class="stat-row"><span class="stat-label">推荐匹配度</span><span class="stat-value" id="statMatch">94%</span></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="article-page" id="articlePage">
+  <div class="article-page-header">
+    <button class="back-btn" onclick="closeArticlePage()">← 返回</button>
+    <span style="font-weight:600;color:var(--text-secondary);">文章详情与爆款分析</span>
+  </div>
+  <div class="article-page-body">
+    <div class="article-left">
+      <div class="card">
+        <h1 class="article-detail-title" id="detailTitle">【深度】大模型时代的创业机会在哪里？</h1>
+        <div class="article-detail-meta" id="detailMeta">
+          <span>👤 科技观察家</span><span>📅 2026年1月15日</span><span>👁️ 阅读 125万</span><span>❤️ 点赞 3.2万</span>
+        </div>
+        <div class="article-content-body" id="articleBodyContent">
+          <h2>一、引言：AI 大模型的崛起</h2>
+          <p>2026年，人工智能技术已经从实验室走向了千家万户。以 GPT-5 为代表的新一代大语言模型，正在深刻改变着我们的工作方式、学习方式乃至生活方式。</p>
+          <p>对于创业者而言，这既是前所未有的机遇，也是充满挑战的战场。本文将深入分析大模型时代的创业机会，帮助有志于 AI 领域的创业者找到属于自己的赛道。</p>
+          <p><strong>核心观点：</strong>大模型不是替代人类，而是赋能人类。真正的机会在于如何将 AI 能力与传统行业深度融合，创造全新的价值。</p>
+          <h2>二、市场现状与机遇分析</h2>
+          <p>根据最新数据显示，全球 AI 市场规模已突破 5000 亿美元，预计未来三年将保持 35% 的年均增长率。</p>
+          <h3>2.1 AI 应用层开发</h3>
+          <p>这是目前最活跃的领域之一。无论是企业级应用还是消费级产品，都有巨大的创新空间。关键在于找到真实的痛点并提供解决方案。</p>
+          <h3>2.2 垂直行业解决方案</h3>
+          <p>医疗、法律、金融等专业领域的 AI 应用需求旺盛，但供给相对不足。具备行业知识 + AI 技术的复合型人才将极具竞争力。</p>
+          <h2>三、成功案例深度解析</h2>
+          <p>某初创公司基于大模型开发了新一代智能客服系统，上线半年内服务超过 200 家企业，获得 A 轮融资 5000 万美元。</p>
+          <h2>四、创业策略与实施路径</h2>
+          <p><strong>1. 从小切口入手：</strong>不要试图做平台，先解决一个具体的问题。</p>
+          <p><strong>2. 重视数据积累：</strong>数据是 AI 产品的核心竞争力，要建立自己的数据护城河。</p>
+          <p><strong>3. 保持技术敏感度：</strong>AI 技术迭代极快，需要持续学习和跟进最新进展。</p>
+          <h2>五、未来展望与建议</h2>
+          <p>展望未来 3-5 年，多模态 AI 的成熟与应用、AI Agent 的普及、人机协作模式的深化等方向值得关注。</p>
+          <p>对于想要进入这个领域的创业者，我们的建议是：<strong>保持好奇心，勇于尝试，但也要理性评估风险。</strong></p>
+        </div>
+        <div class="article-actions">
+          <button class="action-btn" id="likeBtn" onclick="toggleLike()">❤️ 点赞 <span id="likeCount">3.2万</span></button>
+          <button class="action-btn" onclick="showToast('已收藏到我的收藏夹')">⭐ 收藏</button>
+          <button class="action-btn" onclick="showModal('share')">📤 分享</button>
+        </div>
+      </div>
+    </div>
+    <div class="article-right">
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">📊 综合评分</div>
+        <div class="score-circle" style="--score:87;"><span class="score-value">87</span></div>
+        <div style="text-align:center;color:var(--text-secondary);font-size:13px;">综合质量评分 <strong style="color:var(--primary);">87/100</strong></div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">🎯 爆款因素</div>
+        <div class="analysis-grid">
+          <div class="analysis-metric"><div class="metric-value">92</div><div class="metric-label">标题吸引力</div></div>
+          <div class="analysis-metric"><div class="metric-value">88</div><div class="metric-label">内容价值度</div></div>
+          <div class="analysis-metric"><div class="metric-value">85</div><div class="metric-label">结构清晰度</div></div>
+          <div class="analysis-metric"><div class="metric-value">82</div><div class="metric-label">互动引导性</div></div>
+        </div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">📝 结构分析</div>
+        <div style="font-size:13px;">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-color);"><strong style="color:var(--primary);">✅ 开头</strong> — 引人入胜，数据支撑</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-color);"><strong style="color:var(--primary);">✅ 正文</strong> — 结构清晰，过渡自然</div>
+          <div style="padding:8px 0;"><strong style="color:var(--accent);">⚠️ 结尾</strong> — 缺少行动号召</div>
+        </div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">💬 情感分析</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+          <span>积极 <strong>72%</strong></span><span>中性 <strong>18%</strong></span><span>消极 <strong>10%</strong></span>
+        </div>
+        <div class="sentiment-bar">
+          <div class="sentiment-positive" style="width:72%"></div>
+          <div class="sentiment-neutral" style="width:18%"></div>
+          <div class="sentiment-negative" style="width:10%"></div>
+        </div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">📈 热度趋势</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">过去 14 天阅读量</div>
+        <div class="heatmap-grid">
+          <div class="heatmap-cell level-3"></div><div class="heatmap-cell level-4"></div><div class="heatmap-cell level-5"></div>
+          <div class="heatmap-cell level-5"></div><div class="heatmap-cell level-4"></div><div class="heatmap-cell level-3"></div>
+          <div class="heatmap-cell level-2"></div><div class="heatmap-cell level-2"></div><div class="heatmap-cell level-3"></div>
+          <div class="heatmap-cell level-4"></div><div class="heatmap-cell level-4"></div><div class="heatmap-cell level-3"></div>
+          <div class="heatmap-cell level-2"></div><div class="heatmap-cell level-1"></div>
+        </div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">🎁 爆款原因</div>
+        <ul style="font-size:13px;color:var(--text-secondary);line-height:2;list-style:none;">
+          <li><strong style="color:var(--primary);">标题优势：</strong>"深度"+"在哪里"激发好奇，CTR提升23%</li>
+          <li><strong style="color:var(--primary);">时机把握：</strong>AI热点期发布，自然流量增长45%</li>
+          <li><strong style="color:var(--primary);">内容深度：</strong>案例详实，平均阅读时长6.2分钟</li>
+          <li><strong style="color:var(--primary);">社交传播：</strong>收藏率18%，远超平均8%</li>
+        </ul>
+        <div style="margin-top:12px;padding:12px;background:rgba(0,0,0,0.04);border-radius:8px;border-left:3px solid var(--primary);font-size:13px;color:var(--text-secondary);">
+          <strong style="color:var(--primary);">💡 建议：</strong>结尾增加互动性问题可提升评论率
+        </div>
+      </div>
+      <div class="analysis-section fade-in">
+        <div class="analysis-section-title">💬 热门评论</div>
+        <div class="comment-item">
+          <div class="comment-header"><div class="comment-avatar">张</div><div><div class="comment-author">张先生</div><div class="comment-time">2小时前</div></div></div>
+          <div class="comment-text">非常实用！对我们想做 AI 创业的人太有价值了。</div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-header"><div class="comment-avatar">李</div><div><div class="comment-author">李女士</div><div class="comment-time">5小时前</div></div></div>
+          <div class="comment-text">案例部分写得很详细，给了我很大启发！</div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <textarea placeholder="发表你的看法..." style="flex:1;resize:none;height:60px;padding:10px;border:1px solid var(--border-color);border-radius:8px;font-family:inherit;font-size:13px;"></textarea>
+          <button class="btn btn-black" onclick="showToast('评论发布成功！')">发送</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const appState = {
+  currentSection: 'articles',
+  currentPlatform: 'weibo',
+  currentHotspot: 'weibo',
+  inspirationType: 'dry',
+  isLoggedIn: false,
+  membershipLevel: 'free',
+  isLiked: false,
+  selectedCategories: [],
+  hotspotInterval: null
+};
+
+const categoryMap = {
+  tech: '科技', ai: 'AI/大模型', finance: '财经', health: '健康',
+  education: '教育', lifestyle: '生活方式', entertainment: '娱乐', business: '商业'
+};
+
+const mockArticles = {
+  weibo: [
+    { rank:1, title:'【深度】大模型时代的创业机会在哪里？', author:'科技观察家', reads:'125万', likes:'3.2万' },
+    { rank:2, title:'从零开始做自媒体：2026年最全实操指南', author:'内容创作者', reads:'98万', likes:'2.8万' },
+    { rank:3, title:'AI 工具测评：这 10 款工具彻底改变了我的工作方式', author:'效率达人', reads:'87万', likes:'2.1万' },
+    { rank:4, title:'普通人如何抓住 AI 浪潮？一位从业者的真实思考', author:'AI 前线', reads:'76万', likes:'1.9万' },
+    { rank:5, title:'2026 年投资趋势：哪些赛道值得关注？', author:'财经观察', reads:'65万', likes:'1.5万' }
+  ],
+  zhihu: [
+    { rank:1, title:'如何评价 GPT-5 可能带来的社会变革？', author:'深度思考者', reads:'234万', likes:'5.6万' },
+    { rank:2, title:'有哪些值得推荐的 AI 学习资源？', author:'技术专家', reads:'189万', likes:'4.2万' },
+    { rank:3, title:'远程工作的未来：混合办公模式会成为主流吗？', author:'职场分析师', reads:'156万', likes:'3.8万' },
+    { rank:4, title:'如何培养批判性思维？系统性的方法论分享', author:'认知科学家', reads:'134万', likes:'3.1万' },
+    { rank:5, title:'2026 年最值得关注的科技趋势是什么？', author:'行业观察', reads:'112万', likes:'2.7万' }
+  ],
+  wechat: [
+    { rank:1, title:'重磅！AI 行业最新政策解读与影响分析', author:'政策研究院', reads:'500万+', likes:'12万+' },
+    { rank:2, title:'告别焦虑：2026 年个人成长完整路线图', author:'成长导师', reads:'380万+', likes:'9.8万+' },
+    { rank:3, title:'揭秘高收入人群的共同习惯（附行动清单）', author:'财富思维', reads:'290万+', likes:'7.6万+' },
+    { rank:4, title:'健康生活新标准：医生不会告诉你的真相', author:'医学科普', reads:'250万+', likes:'6.5万+' },
+    { rank:5, title:'教育变革：AI 时代孩子需要具备什么能力？', author:'教育前沿', reads:'210万+', likes:'5.4万+' }
+  ],
+  twitter: [
+    { rank:1, title:'OpenAI announces GPT-5 with multimodal reasoning', author:'@TechCrunch', reads:'2.1M', likes:'89K' },
+    { rank:2, title:'The future of remote work: 5 predictions for 2026', author:'@HarvardBiz', reads:'1.8M', likes:'67K' },
+    { rank:3, title:'Why AI agents will change everything about productivity', author:'@pabro', reads:'1.5M', likes:'54K' },
+    { rank:4, title:'Breaking: Apple Vision Pro 2 leaks reveal half-price model', author:'@markgurman', reads:'1.2M', likes:'43K' },
+    { rank:5, title:'The creator economy is evolving faster than you think', author:'@lijin', reads:'980K', likes:'38K' }
+  ]
+};
+
+const hotspotData = {
+  weibo: [
+    { title:'GPT-5 正式发布引发全球关注', heat:'5821万' },
+    { title:'新能源车销量再创新高', heat:'3245万' },
+    { title:'远程办公成为主流趋势', heat:'2876万' },
+    { title:'AI 创业公司融资破纪录', heat:'2134万' },
+    { title:'健康饮食新标准出台', heat:'1892万' }
+  ],
+  zhihu: [
+    { title:'如何评价 GPT-5 的多模态推理能力？', heat:'4.2万关注' },
+    { title:'2026 年最值得学习的编程语言？', heat:'3.8万关注' },
+    { title:'混合办公模式真的能提高效率吗？', heat:'2.9万关注' },
+    { title:'AI 时代如何保护个人隐私？', heat:'2.1万关注' },
+    { title:'年轻人如何规划职业发展？', heat:'1.8万关注' }
+  ],
+  wechat: [
+    { title:'重磅！AI 行业最新政策解读', heat:'10万+' },
+    { title:'2026 年个人成长完整路线图', heat:'10万+' },
+    { title:'高收入人群的共同习惯', heat:'8.5万' },
+    { title:'教育变革：AI 时代孩子需要什么能力', heat:'7.2万' },
+    { title:'健康生活新标准揭秘', heat:'6.8万' }
+  ],
+  twitter: [
+    { title:'OpenAI GPT-5 multimodal launch', heat:'125K tweets' },
+    { title:'Remote work trends 2026', heat:'89K tweets' },
+    { title:'AI agents productivity revolution', heat:'67K tweets' },
+    { title:'Apple Vision Pro 2 leaks', heat:'54K tweets' },
+    { title:'Creator economy evolution', heat:'43K tweets' }
+  ]
+};
+
+const dynamicTags = [
+  'AI 大模型', 'GPT-5', '新能源', '远程办公', '个人成长',
+  '创业投资', '健康生活', '教育变革', '元宇宙', '区块链',
+  '数字营销', '内容创作', '职场发展', '科技趋势'
+];
+
+function selectOption(el, group, value) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.settings-option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = {
+    personality: { warm: '温暖亲切', formal: '正式严谨' },
+    appearance: { light: '亮色模式', dark: '暗色模式', auto: '自动模式' }
+  };
+  showToast(`已切换为: ${labels[group]?.[value] || value}`);
+}
+
+function selectColor(el, color) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.documentElement.style.setProperty('--primary', color);
+  showToast('主题颜色已更新');
+}
+
+function toggleCategory(el, cat) {
+  el.classList.toggle('selected');
+  const idx = appState.selectedCategories.indexOf(cat);
+  if (idx > -1) appState.selectedCategories.splice(idx, 1);
+  else appState.selectedCategories.push(cat);
+  document.getElementById('startBtn').disabled = appState.selectedCategories.length === 0;
+}
+
+function startApp() {
+  if (appState.selectedCategories.length === 0) return;
+  document.getElementById('onboarding').classList.add('hidden');
+  document.getElementById('app').style.display = 'flex';
+  init();
+}
+
+function init() {
+  renderArticles();
+  renderHotspots();
+  renderTags();
+  updateStats();
+  startHotspotRefresh();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function toggleRightPanel() {
+  document.getElementById('rightPanel').classList.toggle('collapsed');
+}
+
+function togglePanelSection(titleEl) {
+  titleEl.classList.toggle('collapsed');
+  const content = titleEl.nextElementSibling;
+  content.classList.toggle('collapsed');
+}
+
+function switchSection(section, navItem) {
+  document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`section-${section}`).classList.add('active');
+  if (navItem) navItem.classList.add('active');
+  appState.currentSection = section;
+  if (section === 'articles') renderArticles();
+}
+
+function switchPlatform(btn, platform) {
+  document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  appState.currentPlatform = platform;
+  renderArticles();
+}
+
+function switchHotspot(btn, platform) {
+  document.querySelectorAll('.hotspot-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  appState.currentHotspot = platform;
+  renderHotspots();
+}
+
+function renderArticles() {
+  const container = document.getElementById('articlesList');
+  const articles = mockArticles[appState.currentPlatform] || [];
+  container.innerHTML = articles.map(a => `
+    <div class="article-item" onclick="openArticlePage('${a.title}','${a.author}','${a.reads}','${a.likes}')">
+      <div class="article-rank">${a.rank}</div>
+      <div style="flex:1;">
+        <div class="article-title">${a.title}</div>
+        <div class="article-meta"><span>👤 ${a.author}</span><span>👁️ ${a.reads}</span><span>❤️ ${a.likes}</span></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHotspots() {
+  const container = document.getElementById('hotspotList');
+  const items = hotspotData[appState.currentHotspot] || [];
+  container.innerHTML = items.map((h, i) => `
+    <div class="hotspot-item" onclick="openArticlePage('${h.title}','热点来源','${h.heat}','-')">
+      <span class="hotspot-rank ${i < 3 ? 'top' : ''}">${i + 1}</span>
+      <span class="hotspot-text">${h.title}</span>
+      <span class="hotspot-heat">${h.heat}</span>
+    </div>
+  `).join('');
+}
+
+function renderTags() {
+  const container = document.getElementById('tagCloud');
+  const shuffled = [...dynamicTags].sort(() => Math.random() - 0.5).slice(0, 8);
+  container.innerHTML = shuffled.map(t =>
+    `<span style="padding:6px 12px;background:var(--bg-secondary);border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='var(--bg-secondary)';this.style.color='var(--text-primary)'">${t}</span>`
+  ).join('');
+}
+
+function updateStats() {
+  const r = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  document.getElementById('statHotspots').textContent = `+${r(18, 35)}`;
+  document.getElementById('statTopics').textContent = `+${r(8, 20)}`;
+  document.getElementById('statFav').textContent = `+${r(3, 12)}`;
+  document.getElementById('statMatch').textContent = `${r(88, 98)}%`;
+}
+
+function startHotspotRefresh() {
+  if (appState.hotspotInterval) clearInterval(appState.hotspotInterval);
+  appState.hotspotInterval = setInterval(() => {
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+    const el = document.getElementById('hotspotUpdateTime');
+    if (el) el.textContent = `${timeStr} 更新`;
+    hotspotData.weibo.forEach(h => { h.heat = (Math.floor(Math.random() * 5000) + 1000) + '万'; });
+    hotspotData.zhihu.forEach(h => { h.heat = (Math.floor(Math.random() * 4) + 1) + '.' + Math.floor(Math.random() * 9) + '万关注'; });
+    hotspotData.wechat.forEach(h => { h.heat = (Math.random() > 0.5 ? '10万+' : Math.floor(Math.random() * 9 + 1) + '万'); });
+    hotspotData.twitter.forEach(h => { h.heat = Math.floor(Math.random() * 100 + 20) + 'K tweets'; });
+    renderHotspots();
+    renderTags();
+    updateStats();
+  }, 30000);
+}
+
+function searchArticles() {
+  const q = document.getElementById('articleSearchInput').value.trim();
+  if (!q) { showToast('请输入搜索关键词'); return; }
+  const container = document.getElementById('articlesList');
+  container.innerHTML = '<div style="text-align:center;padding:30px;"><div class="loading-spinner"></div><p style="margin-top:14px;color:var(--text-secondary);">正在搜索: ' + q + '</p></div>';
+  setTimeout(() => {
+    const articles = mockArticles[appState.currentPlatform] || [];
+    const filtered = articles.filter(a => a.title.includes(q));
+    if (filtered.length > 0) {
+      container.innerHTML = filtered.map(a => `
+        <div class="article-item" onclick="openArticlePage('${a.title}','${a.author}','${a.reads}','${a.likes}')">
+          <div class="article-rank">${a.rank}</div>
+          <div style="flex:1;">
+            <div class="article-title">${a.title}</div>
+            <div class="article-meta"><span>👤 ${a.author}</span><span>👁️ ${a.reads}</span><span>❤️ ${a.likes}</span></div>
+          </div>
+        </div>
+      `).join('');
+      showToast(`找到 ${filtered.length} 条相关结果`);
+    } else {
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-secondary);">未找到与 "${q}" 相关的文章<br><span style="font-size:12px;">试试其他关键词或切换平台</span></div>`;
+      showToast('未找到相关结果');
+    }
+  }, 800);
+}
+
+function openArticlePage(title, author, reads, likes) {
+  document.getElementById('detailTitle').textContent = title;
+  document.getElementById('detailMeta').innerHTML = `<span>👤 ${author}</span><span>👁️ ${reads}</span><span>❤️ ${likes}</span>`;
+  document.getElementById('articlePage').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeArticlePage() {
+  document.getElementById('articlePage').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function toggleLike() {
+  appState.isLiked = !appState.isLiked;
+  const btn = document.getElementById('likeBtn');
+  const count = document.getElementById('likeCount');
+  if (appState.isLiked) { count.textContent = '3.21万'; showToast('感谢你的点赞！'); }
+  else { count.textContent = '3.2万'; }
+}
+
+function generateTopics() {
+  const input = document.getElementById('topicInput').value.trim();
+  if (!input) { showToast('请输入主题或关键词'); return; }
+  const shouldGenTitle = document.getElementById('generateTitle').value === 'yes';
+  const c = document.getElementById('topicResults');
+  c.style.display = 'block';
+  c.innerHTML = '<div style="text-align:center;padding:30px;"><div class="loading-spinner"></div><p style="margin-top:14px;color:var(--text-secondary);">AI 正在生成选题...</p></div>';
+  setTimeout(() => {
+    const topics = [
+      { title:`${input}完全指南：从入门到精通的实战路径`, desc:'系统性教程类内容', heat:'★★★★★' },
+      { title:`2026年${input}趋势预测：这5个方向值得关注`, desc:'前瞻性分析内容', heat:'★★★★☆' },
+      { title:`深度解析：${input}如何改变我们的生活方式？`, desc:'深度思考类内容', heat:'★★★★☆' },
+      { title:`亲测有效：我用${input}提升了300%的工作效率`, desc:'经验分享类内容', heat:'★★★★★' },
+      { title:`${input}避坑指南：新手最容易犯的10个错误`, desc:'实用技巧类内容', heat:'★★★★☆' }
+    ];
+    let html = `<h4 style="font-weight:700;margin-bottom:14px;">✨ 为 "${input}" 生成的选题建议</h4>` +
+      topics.map((t,i) => `<div class="result-item"><div class="result-title">${i+1}. ${t.title}</div><div class="result-desc">${t.desc} | 热度: ${t.heat}</div></div>`).join('');
+    if (shouldGenTitle) {
+      const titles = [
+        { title:`震惊！${input}竟然隐藏着这么多秘密...`, seo:92, ctr:'8.5%' },
+        { title:`${input}：原理、实践与最佳实践指南`, seo:95, ctr:'5.2%' },
+        { title:`做了3年${input}，我想说些心里话...`, seo:86, ctr:'6.8%' },
+        { title:`为什么越来越多的人开始关注${input}？`, seo:91, ctr:'6.0%' },
+        { title:`关于${input}，你必须知道的5个关键点`, seo:94, ctr:'6.2%' }
+      ];
+      html += `<h4 style="font-weight:700;margin-bottom:14px;margin-top:24px;">🚀 为 "${input}" 生成的高点击率标题</h4>` +
+        titles.map((t,i) => `<div class="result-item"><div class="result-title">${i+1}. ${t.title}</div><div class="result-desc">SEO: ${t.seo}/100 | CTR: ${t.ctr}</div></div>`).join('');
+    }
+    c.innerHTML = html;
+    showToast(shouldGenTitle ? '选题和标题生成完成！' : '选题生成完成！');
+  }, 1500);
+}
+
+
+
+function switchInspirationType(btn, type) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  appState.inspirationType = type;
+}
+
+function generateInspiration() {
+  const input = document.getElementById('inspirationInput').value.trim();
+  if (!input) { showToast('请输入创作主题'); return; }
+  const c = document.getElementById('inspirationResults');
+  c.style.display = 'block';
+  c.innerHTML = '<div style="text-align:center;padding:40px;"><div class="loading-spinner"></div><p style="margin-top:14px;color:var(--text-secondary);">AI 正在构建创作框架...</p></div>';
+  setTimeout(() => {
+    const types = { dry:'干货教程型', experience:'经验分享型', problem:'问题解决型', story:'故事叙述型' };
+    const frameworks = {
+      dry: [
+        { h:'引言：为什么现在学习？', c:'用数据说明重要性和紧迫性' },
+        { h:'基础篇：核心概念与原理', c:'通俗易懂解释关键术语' },
+        { h:'实操篇：手把手完成项目', c:'详细步骤和代码示例' },
+        { h:'进阶篇：高级技巧与最佳实践', c:'行业最佳做法和常见陷阱' },
+        { h:'资源篇：推荐工具和社区', c:'整理优质资源列表' }
+      ],
+      experience: [
+        { h:'缘起：如何接触到的', c:'讲述故事起点' },
+        { h:'新手期的迷茫与探索', c:'分享困难和错误' },
+        { h:'转折点：方法突破', c:'关键转折和可复制思路' },
+        { h:'现状：成长中的新挑战', c:'当前成果和谦逊态度' },
+        { h:'给新手的 5 条真心话', c:'核心经验和建议' }
+      ],
+      problem: [
+        { h:'问题诊断：了解问题本质', c:'识别和定义问题' },
+        { h:'原因分析：为何陷入困境', c:'剖析根本原因' },
+        { h:'方案一：快速见效的应急措施', c:'立竿见影的方法' },
+        { h:'方案二：根治问题的长期策略', c:'根本解决方案' },
+        { h:'预防机制：避免问题再发生', c:'建立预警系统' }
+      ],
+      story: [
+        { h:'序幕：一切的开始', c:'设置场景制造悬念' },
+        { h:'冲突：面临的挑战与抉择', c:'困难和内心挣扎' },
+        { h:'转折：意外发现的转机', c:'关键转折点' },
+        { h:'高潮：决定性的行动时刻', c:'最紧张部分' },
+        { h:'结局：新的开始与启示', c:'收尾和升华' }
+      ]
+    };
+    const fw = frameworks[appState.inspirationType] || frameworks.dry;
+    c.innerHTML = `
+      <div class="inspiration-card">
+        <span class="inspiration-type">${types[appState.inspirationType]}</span>
+        <div class="inspiration-title">${input}：创作灵感与框架</div>
+        <div style="margin-top:16px;">
+          ${fw.map((f,i) => `<div class="framework-item"><div class="framework-number">${i+1}</div><div class="framework-text"><strong style="color:var(--text-primary);">${f.h}</strong><br>${f.c}</div></div>`).join('')}
+        </div>
+      </div>`;
+    showToast('创作灵感生成完成！');
+  }, 1800);
+}
+
+function selectPlan(plan) {
+  if (plan === 'free') { showToast('您当前已是免费版用户'); return; }
+  showToast('正在跳转到支付页面...');
+  setTimeout(() => {
+    const level = plan === 'premium' ? '高级版会员' : 'VIP 尊享会员';
+    const avatarText = plan === 'premium' ? '高' : 'V';
+    appState.membershipLevel = plan;
+    document.getElementById('currentLevel').textContent = level;
+    document.getElementById('userAvatar').textContent = avatarText;
+    showToast(`恭喜您成为${level}！✨`);
+  }, 1500);
+}
+
+function showModal(type) {
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  let html = '';
+  switch(type) {
+    case 'login':
+      html = `
+        <div class="modal-title">🔐 登录 / 注册</div>
+        <div class="login-tabs">
+          <button class="login-tab-btn active" onclick="switchLoginTab(this,'email')">📧 Email</button>
+          <button class="login-tab-btn" onclick="switchLoginTab(this,'phone')">📱 手机号</button>
+          <button class="login-tab-btn" onclick="switchLoginTab(this,'wechat')">💬 微信</button>
+        </div>
+        <div class="login-form active" id="loginEmail">
+          <div class="input-group"><label>邮箱地址</label><input type="email" placeholder="your@email.com"></div>
+          <div class="input-group"><label>密码</label><input type="password" placeholder="输入密码"></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:12px;">
+            <a href="#" style="color:var(--primary);text-decoration:none;" onclick="showToast('密码重置邮件已发送')">忘记密码？</a>
+            <a href="#" style="color:var(--text-secondary);text-decoration:none;" onclick="showToast('请填写注册表单')">注册新账号</a>
+          </div>
+          <button class="btn btn-black" style="width:100%;justify-content:center;" onclick="handleLogin()">登录</button>
+        </div>
+        <div class="login-form" id="loginPhone">
+          <div class="input-group"><label>手机号码</label><input type="tel" placeholder="输入手机号"></div>
+          <div class="input-group"><label>验证码</label><div style="display:flex;gap:8px;"><input type="text" placeholder="输入验证码" style="flex:1;"><button class="btn btn-black" onclick="showToast('验证码已发送')">获取验证码</button></div></div>
+          <button class="btn btn-black" style="width:100%;justify-content:center;margin-top:14px;" onclick="handleLogin()">登录</button>
+        </div>
+        <div class="login-form" id="loginWechat">
+          <div class="qr-code-container"><div class="qr-code">📱</div><p style="color:var(--text-secondary);font-size:13px;">使用微信扫描二维码登录</p><p style="color:var(--text-secondary);font-size:11px;margin-top:4px;">扫描后请在手机上确认</p></div>
+        </div>`;
+      break;
+    case 'generate':
+      html = `
+        <div class="modal-title">⚡ 快速生成中心</div>
+        <div class="input-group"><label>输入主题或关键词</label><input type="text" placeholder="输入任何感兴趣的话题..."></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+          <button class="btn btn-black" style="justify-content:center;" onclick="showToast('请先输入主题')">🎯 生成选题</button>
+          <button class="btn btn-black" style="justify-content:center;" onclick="showToast('请先输入主题')">📝 生成标题</button>
+          <button class="btn btn-black" style="justify-content:center;" onclick="showToast('请先输入主题')">💡 生成灵感</button>
+          <button class="btn btn-black" style="justify-content:center;" onclick="showToast('请先输入主题')">📊 SEO 分析</button>
+        </div>`;
+      break;
+    case 'share':
+      html = `
+        <div class="modal-title">📤 分享文章</div>
+        <div style="text-align:center;padding:16px 0;">
+          <p style="color:var(--text-secondary);margin-bottom:18px;">选择您想分享到的平台</p>
+          <div class="share-buttons" style="justify-content:center;">
+            <button class="share-btn" onclick="showToast('已复制微博分享链接')">📱 微博</button>
+            <button class="share-btn" onclick="showToast('已复制微信分享链接')">💬 微信</button>
+            <button class="share-btn" onclick="showToast('已复制知乎分享链接')">💡 知乎</button>
+            <button class="share-btn" onclick="showToast('已复制推特分享链接')">🐦 推特</button>
+            <button class="share-btn" onclick="showToast('链接已复制到剪贴板')">📋 复制链接</button>
+          </div>
+        </div>`;
+      break;
+  }
+  content.innerHTML = html;
+  overlay.classList.add('show');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+}
+
+function switchLoginTab(btn, type) {
+  document.querySelectorAll('.login-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+  const map = { email:'loginEmail', phone:'loginPhone', wechat:'loginWechat' };
+  document.getElementById(map[type]).classList.add('active');
+}
+
+function handleLogin() {
+  showToast('登录中...');
+  setTimeout(() => {
+    appState.isLoggedIn = true;
+    document.getElementById('userAvatar').textContent = '我';
+    closeModal();
+    showToast('登录成功！欢迎回来 ✨');
+  }, 1000);
+}
+
+function refreshData() {
+  renderHotspots();
+  renderTags();
+  updateStats();
+  showToast('数据已刷新！');
+}
+
+function showToast(message) {
+  const t = document.getElementById('toast');
+  t.textContent = message;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
