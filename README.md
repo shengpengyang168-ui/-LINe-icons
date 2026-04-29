@@ -8,8 +8,6 @@
 
 ![LINe icons 网页预览](screenshot.png)
 
-> 提示：请将你的截图文件命名为 `screenshot.png` 并放在项目根目录下。
-
 ## 文件结构LINe icons/
 ├─ index.html # 主页面
 ├─ css/ # 样式文件（可选）
