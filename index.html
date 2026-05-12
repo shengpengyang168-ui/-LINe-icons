@@ -686,14 +686,20 @@
         <li class="nav-item active" onclick="switchSection('articles', this)">
           <span class="nav-icon">📰</span><span class="nav-text">热文推荐</span>
         </li>
+        <li class="nav-item" onclick="switchSection('dashboard', this)">
+          <span class="nav-icon">📊</span><span class="nav-text">数据看板</span>
+        </li>
         <li class="nav-item" onclick="switchSection('generator', this)">
           <span class="nav-icon">🎯</span><span class="nav-text">选题生成</span>
         </li>
         <li class="nav-item" onclick="switchSection('inspiration', this)">
           <span class="nav-icon">💭</span><span class="nav-text">灵感生成器</span>
         </li>
+        <li class="nav-item" onclick="switchSection('favorites', this)">
+          <span class="nav-icon">⭐</span><span class="nav-text">我的收藏</span>
+        </li>
         <li class="nav-item" onclick="switchSection('membership', this)">
-          <span class="nav-icon">�</span><span class="nav-text">会员中心</span>
+          <span class="nav-icon">👑</span><span class="nav-text">会员中心</span>
         </li>
         <li class="nav-item" onclick="switchSection('settings', this)">
           <span class="nav-icon">⚙️</span><span class="nav-text">设置</span>
@@ -715,7 +721,118 @@
           <input type="text" id="articleSearchInput" placeholder="🔍 输入关键词搜索文章..." onkeyup="if(event.key==='Enter')searchArticles()">
           <button onclick="searchArticles()">搜索</button>
         </div>
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">时间:</span>
+            <button class="filter-chip active" onclick="setFilter(this,'time','today')">今日</button>
+            <button class="filter-chip" onclick="setFilter(this,'time','week')">本周</button>
+            <button class="filter-chip" onclick="setFilter(this,'time','month')">本月</button>
+            <button class="filter-chip" onclick="setFilter(this,'time','all')">全部</button>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">分类:</span>
+            <button class="filter-chip active" onclick="setFilter(this,'cat','all')">全部</button>
+            <button class="filter-chip" onclick="setFilter(this,'cat','tech')">科技</button>
+            <button class="filter-chip" onclick="setFilter(this,'cat','finance')">财经</button>
+            <button class="filter-chip" onclick="setFilter(this,'cat','life')">生活</button>
+            <button class="filter-chip" onclick="setFilter(this,'cat','edu')">教育</button>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">排序:</span>
+            <select id="articleSort" onchange="renderArticles()" style="padding:6px 12px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;font-size:12px;font-family:inherit;cursor:pointer;">
+              <option value="hot">🔥 热度优先</option>
+              <option value="new">🆕 最新发布</option>
+              <option value="likes">❤️ 点赞最多</option>
+              <option value="reads">👁️ 阅读最多</option>
+            </select>
+          </div>
+        </div>
         <div id="articlesList"></div>
+      </div>
+
+      <div id="section-dashboard" class="section-content">
+        <h2 class="section-title">📊 数据看板</h2>
+        <p style="color:var(--text-secondary);margin-bottom:20px;">全方位监控您的创作表现和平台趋势数据</p>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">👁️</span>
+              <span class="kpi-trend up">↑ 12.5%</span>
+            </div>
+            <div class="kpi-value">1,284,506</div>
+            <div class="kpi-label">总阅读量</div>
+            <div class="kpi-subtitle">较上周 +143,208</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">❤️</span>
+              <span class="kpi-trend up">↑ 8.3%</span>
+            </div>
+            <div class="kpi-value">42,189</div>
+            <div class="kpi-label">总点赞数</div>
+            <div class="kpi-subtitle">较上周 +3,225</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">💬</span>
+              <span class="kpi-trend down">↓ 2.1%</span>
+            </div>
+            <div class="kpi-value">8,567</div>
+            <div class="kpi-label">评论互动</div>
+            <div class="kpi-subtitle">较上周 -182</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-header">
+              <span class="kpi-icon">📝</span>
+              <span class="kpi-trend up">↑ 24.0%</span>
+            </div>
+            <div class="kpi-value">156</div>
+            <div class="kpi-label">已生成选题</div>
+            <div class="kpi-subtitle">本月累计</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h3 style="font-size:16px;font-weight:800;">📈 近 7 天阅读趋势</h3>
+            <div style="display:flex;gap:6px;">
+              <button class="filter-chip active">7 天</button>
+              <button class="filter-chip">30 天</button>
+              <button class="filter-chip">90 天</button>
+            </div>
+          </div>
+          <div class="trend-chart" id="trendChart"></div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;">🏆 平台表现对比</h3>
+            <div class="platform-bar"><div class="platform-bar-label"><span>📱 微博</span><span>85%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:85%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>💡 知乎</span><span>72%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:72%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>💬 微信公众号</span><span>68%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:68%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>🐦 推特</span><span>54%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:54%;"></div></div></div>
+          </div>
+
+          <div class="card">
+            <h3 style="font-size:16px;font-weight:800;margin-bottom:16px;">🎯 受众画像</h3>
+            <div style="display:flex;justify-content:space-around;margin-bottom:18px;">
+              <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--primary);">68%</div><div style="font-size:11px;color:var(--text-secondary);">男性</div></div>
+              <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--primary);">32%</div><div style="font-size:11px;color:var(--text-secondary);">女性</div></div>
+              <div style="text-align:center;"><div style="font-size:22px;font-weight:900;color:var(--primary);">25-34</div><div style="font-size:11px;color:var(--text-secondary);">主力年龄</div></div>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">兴趣分布</div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>AI / 科技</span><span>45%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:45%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>商业 / 财经</span><span>28%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:28%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>生活方式</span><span>18%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:18%;"></div></div></div>
+            <div class="platform-bar"><div class="platform-bar-label"><span>其他</span><span>9%</span></div><div class="platform-bar-track"><div class="platform-bar-fill" style="width:9%;"></div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:14px;">🌟 本月爆款 TOP 5</h3>
+          <div id="topArticles"></div>
+        </div>
       </div>
 
       <div id="section-generator" class="section-content">
@@ -726,32 +843,74 @@
             <label>输入主题或关键词</label>
             <input type="text" id="topicInput" placeholder="例如：人工智能、健康生活、科技趋势...">
           </div>
-          <div class="input-group">
-            <label>选择内容类型</label>
-            <select id="contentType">
-              <option value="all">全部类型</option>
-              <option value="tutorial">教程干货型</option>
-              <option value="experience">经验分享型</option>
-              <option value="analysis">深度分析型</option>
-              <option value="trend">趋势预测型</option>
-            </select>
+          <div class="gen-hint">
+            <span class="gen-hint-label">💡 推荐主题:</span>
+            <span class="gen-chip" onclick="document.getElementById('topicInput').value='AI 大模型'">AI 大模型</span>
+            <span class="gen-chip" onclick="document.getElementById('topicInput').value='远程办公'">远程办公</span>
+            <span class="gen-chip" onclick="document.getElementById('topicInput').value='短视频创作'">短视频创作</span>
+            <span class="gen-chip" onclick="document.getElementById('topicInput').value='个人成长'">个人成长</span>
+            <span class="gen-chip" onclick="document.getElementById('topicInput').value='副业赚钱'">副业赚钱</span>
+          </div>
+          <div class="gen-grid">
+            <div class="input-group">
+              <label>选择内容类型</label>
+              <select id="contentType">
+                <option value="all">全部类型</option>
+                <option value="tutorial">教程干货型</option>
+                <option value="experience">经验分享型</option>
+                <option value="analysis">深度分析型</option>
+                <option value="trend">趋势预测型</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>标题风格偏好</label>
+              <select id="titleStyle">
+                <option value="clickbait">吸引眼球型</option>
+                <option value="professional">专业权威型</option>
+                <option value="emotional">情感共鸣型</option>
+                <option value="question">疑问引导型</option>
+                <option value="number">数字清单型</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>目标平台</label>
+              <select id="targetPlatform">
+                <option value="weibo">微博</option>
+                <option value="zhihu">知乎</option>
+                <option value="wechat">微信公众号</option>
+                <option value="xhs">小红书</option>
+                <option value="twitter">推特</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>目标受众</label>
+              <select id="targetAudience">
+                <option value="general">大众用户</option>
+                <option value="professional">专业人士</option>
+                <option value="student">学生群体</option>
+                <option value="entrepreneur">创业者</option>
+                <option value="creator">内容创作者</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>文章字数</label>
+              <select id="wordCount">
+                <option value="short">短文 (500-1000 字)</option>
+                <option value="medium" selected>中篇 (1000-3000 字)</option>
+                <option value="long">长文 (3000+ 字)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>同时生成标题</label>
+              <select id="generateTitle">
+                <option value="yes">是</option>
+                <option value="no">否</option>
+              </select>
+            </div>
           </div>
           <div class="input-group">
-            <label>标题风格偏好</label>
-            <select id="titleStyle">
-              <option value="clickbait">吸引眼球型</option>
-              <option value="professional">专业权威型</option>
-              <option value="emotional">情感共鸣型</option>
-              <option value="question">疑问引导型</option>
-              <option value="number">数字清单型</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label>同时生成标题</label>
-            <select id="generateTitle">
-              <option value="yes">是</option>
-              <option value="no">否</option>
-            </select>
+            <label>创意温度 <span id="temperatureVal" style="color:var(--primary);font-weight:700;">0.7</span> <span style="color:var(--text-secondary);font-size:11px;">(越高越有创意，越低越严谨)</span></label>
+            <input type="range" min="0" max="10" value="7" id="temperatureRange" style="width:100%;accent-color:var(--primary);" oninput="document.getElementById('temperatureVal').textContent=(this.value/10).toFixed(1)">
           </div>
           <button class="btn btn-black" onclick="generateTopics()" style="width:100%;justify-content:center;padding:14px;">✨ 生成选题建议</button>
           <div class="result-container" id="topicResults" style="display:none;"></div>
@@ -922,6 +1081,29 @@
         </div>
       </div>
 
+      <div id="section-favorites" class="section-content">
+        <h2 class="section-title">⭐ 我的收藏</h2>
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+          <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div><div style="font-size:22px;font-weight:900;color:var(--primary);" id="favCount">24</div><div style="font-size:11px;color:var(--text-secondary);">收藏总数</div></div>
+            <div><div style="font-size:22px;font-weight:900;color:var(--primary);">8</div><div style="font-size:11px;color:var(--text-secondary);">本周新增</div></div>
+            <div><div style="font-size:22px;font-weight:900;color:var(--primary);">5</div><div style="font-size:11px;color:var(--text-secondary);">收藏夹</div></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" onclick="showToast('新建收藏夹')">➕ 新建收藏夹</button>
+            <button class="btn btn-black" onclick="showToast('导出功能需高级会员')">📥 导出</button>
+          </div>
+        </div>
+        <div class="fav-folders">
+          <div class="fav-folder active" onclick="switchFolder(this,'all')">📁 全部 <span class="fav-folder-count">24</span></div>
+          <div class="fav-folder" onclick="switchFolder(this,'ai')">🤖 AI 专题 <span class="fav-folder-count">9</span></div>
+          <div class="fav-folder" onclick="switchFolder(this,'business')">💼 商业洞察 <span class="fav-folder-count">6</span></div>
+          <div class="fav-folder" onclick="switchFolder(this,'tech')">💻 技术干货 <span class="fav-folder-count">5</span></div>
+          <div class="fav-folder" onclick="switchFolder(this,'life')">🌱 生活方式 <span class="fav-folder-count">4</span></div>
+        </div>
+        <div id="favList"></div>
+      </div>
+
       <div id="section-membership" class="section-content">
         <div class="membership-hero card fade-in">
           <div class="membership-crown">👑</div>
@@ -929,6 +1111,10 @@
           <div class="membership-benefits-count">解锁全部高级功能，提升创作效率 300%</div>
         </div>
         <h3 style="font-size:22px;font-weight:800;margin-bottom:18px;text-align:center;">选择您的会员计划</h3>
+        <div class="billing-toggle">
+          <span class="billing-option active" id="billingMonthly" onclick="setBilling('monthly')">按月付费</span>
+          <span class="billing-option" id="billingYearly" onclick="setBilling('yearly')">按年付费 <span class="badge-save">省 20%</span></span>
+        </div>
         <div class="plans-grid">
           <div class="plan-card fade-in">
             <div class="plan-name">🌟 免费版</div>
